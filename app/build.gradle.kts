@@ -1,16 +1,21 @@
 plugins {
-    id("com.android.application")
-    id("org.jetbrains.kotlin.android")
+    alias(libs.plugins.android.application)
+    alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.ksp)
 }
 
 android {
     namespace = "com.pixelpatch.movieland"
-    compileSdk = 34
+    compileSdk = libs.versions.compileSdk.get().toInt()
+
+    buildFeatures {
+        dataBinding = true
+    }
 
     defaultConfig {
         applicationId = "com.pixelpatch.movieland"
-        minSdk = 21
-        targetSdk = 33
+        minSdk = libs.versions.minSdk.get().toInt()
+        targetSdk = libs.versions.targetSdk.get().toInt()
         versionCode = 5
         versionName = "5.0"
 
@@ -29,9 +34,24 @@ android {
     }
     kotlinOptions {
         jvmTarget = JavaVersion.VERSION_17.toString()
+
+        // Enable Coroutines and Flow APIs
+        freeCompilerArgs = freeCompilerArgs + "-Xopt-in=kotlinx.coroutines.ExperimentalCoroutinesApi"
+        freeCompilerArgs = freeCompilerArgs + "-Xopt-in=kotlinx.coroutines.FlowPreview"
     }
     buildFeatures {
-        viewBinding = true
+        compose = true
+        dataBinding = true
+        buildConfig = true
+    }
+    composeOptions {
+        kotlinCompilerExtensionVersion = libs.versions.compose.compiler.get()
+    }
+    packaging {
+        // Multiple dependency bring these files in. Exclude them to enable
+        // our test APK to build (has no effect on our AARs)
+        resources.excludes += "/META-INF/AL2.0"
+        resources.excludes += "/META-INF/LGPL2.1"
     }
 }
 
@@ -54,6 +74,15 @@ dependencies {
     androidTestImplementation (libs.ext.junit)
     androidTestImplementation (libs.espresso.core)
 
+    // Compose
+    implementation(libs.androidx.compose.runtime)
+    implementation(libs.androidx.compose.ui)
+    implementation(libs.androidx.compose.foundation)
+    implementation(libs.androidx.compose.foundation.layout)
+    implementation(libs.androidx.compose.material3)
+    implementation(libs.androidx.compose.runtime.livedata)
+    implementation(libs.androidx.compose.ui.tooling.preview)
+
     implementation (libs.gson)
     implementation (libs.volley)
     implementation (libs.junit.ktx)
@@ -68,5 +97,4 @@ dependencies {
     implementation (libs.play.services.ads)
 
     implementation(files("libs/YouTubeAndroidPlayerApi.jar"))
-
 }
