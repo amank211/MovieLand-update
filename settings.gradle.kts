@@ -13,4 +13,4 @@ dependencyResolutionManagement {
     }
 }
 rootProject.name = "MovieLand"
-include ':app'
+include(":app")
